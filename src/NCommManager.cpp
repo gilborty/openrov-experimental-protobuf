@@ -1,6 +1,6 @@
 #include "NCommManager.h"
 
-bool NCommManager::Send(ROVMessage& message)
+SendResponse NCommManager::Send(ROVMessage& message)
 {
     std::cout << "Packing message" << std::endl;
 
@@ -15,7 +15,10 @@ bool NCommManager::Send(ROVMessage& message)
     if(pb_encode(&stream, message.GetFields(), &message))
     {
         std::cout << "Encode successful." << std::endl;
-        return {true, buffer};
+
+        //Pack the struct for returning
+        BufferInfo info = {BUFFER_SIZE(buffer), buffer};
+        return {true, info};
     }
     else
     {
@@ -23,4 +26,11 @@ bool NCommManager::Send(ROVMessage& message)
         return {false, nullptr};
     }
     return {false, nullptr};
+}
+
+uint8_t* NCommManager::Recieve(BufferInfo encodedMessage)
+{
+    //Create a nanopb decode stream from the buffer we just recieved
+    
+
 }
