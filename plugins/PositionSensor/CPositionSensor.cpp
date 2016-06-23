@@ -15,18 +15,13 @@ PositionSensorMessage CPositionSensor::Update()
     //Set the id
     outMessage.data.pid = m_id;
 
-    //Select what we
+    //Select what we want to send
     outMessage.data.which_payload = PositionSensor_telemetry_tag;
     
     //Write random data for the update loop
     auto x = m_dis(m_gen);
     auto y = m_dis(m_gen);
-
     outMessage.data.payload.telemetry = {x, y};
-
-
-    //outMessage.data.telemetry.x = m_dis(m_gen);
-    //outMessage.data.telemetry.y = m_dis(m_gen);
 
     return outMessage;
 }

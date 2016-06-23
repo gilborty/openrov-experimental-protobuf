@@ -15,12 +15,12 @@ bool NCommManager::Send(ROVMessage& message)
     if(pb_encode(&stream, message.GetFields(), &message))
     {
         std::cout << "Encode successful." << std::endl;
-        return true;
+        return {true, buffer};
     }
     else
     {
         std::cout << "Encode FAILED." << std::endl;
-        return false;
+        return {false, nullptr};
     }
-    return false;
+    return {false, nullptr};
 }
