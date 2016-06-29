@@ -1,0 +1,14 @@
+syntax = "proto2";
+
+import "plugins/PoseSensor/PoseMessage.proto";
+import "plugins/TemperatureSensor/TemperatureMessage.proto";
+
+message MasterMessage
+{
+	required sfixed32 type = 1;
+	oneof payload
+	{
+		PoseMessage poseMessage = 2;
+		TemperatureMessage temperatureMessage = 3;
+	}
+};

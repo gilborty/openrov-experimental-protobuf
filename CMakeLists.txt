@@ -10,11 +10,16 @@ include_directories(${NANOPB_DIR})
 #Get the nanopb sources
 file(GLOB NANOPB_SRCS ${NANOPB_DIR}/*.c)
 
+#Get the plugin sources
+file(GLOB PLUGIN_SRCS src/plugins/*cpp)
+
+#Common sources
+
+
 set(SRCS src/main.cpp
-    src/NCommManager.cpp
-    src/PositionSensor.pb.cpp    
-    src/CPositionSensor.cpp
-    ${NANOPB_SRCS})
+     ${PLUGIN_SRCS}
+     ${NANOPB_SRCS}
+)
 
 add_executable(${PROJECT_NAME} ${SRCS})
 
