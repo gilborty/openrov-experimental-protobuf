@@ -96,7 +96,7 @@ def compile_proto_file(file, generated_dir="./"):
     
     #Build vars
     #NOTE: Need to go up two levels to get to the nanopb compiler for this MVP script
-    protoc_include_path = "--proto_path=" + project_source_dir
+    protoc_include_path = "--proto_path=" + os.path.join(project_source_dir, "src/proto")
     protoc_plugin_arg = "--plugin=protoc-gen-nanopb=" + nanopb_compiler
     protoc_output_directives = "--nanopb_out=" + generated_dir
 
@@ -135,9 +135,9 @@ def generate_master_proto(proto_files, parent_dirs):
             proto_file_basename = os.path.splitext(proto_file)[0]
             #Set the full path of the protofiles relative to the master_proto_file
             #Hacky hack hack
-            split_path = parent_dirs[id].rpartition('plugins')
-            proto_file_fullpath = os.path.join((split_path[1]+split_path[2]), proto_file)
-            master_proto_file.write("import \"%s\";\n" % proto_file_fullpath)
+            # split_path = parent_dirs[id].rpartition('plugins')
+            # proto_file_fullpath = os.path.join((split_path[1]+split_path[2]), proto_file)
+            master_proto_file.write("import \"%s.proto\";\n" % proto_file_basename)
         #Main master message
         master_proto_file.write("\nmessage MasterMessage\n")
         master_proto_file.write("{\n")
@@ -251,15 +251,41 @@ def generate_proto_file_sources():
     """
     print_status(DebugStatus.INFO, "Generating C++ code from proto files")
     source_dir = os.path.join(project_source_dir, "src")
+    dst_dir = os.path.join(source_dir, "proto")
+
+    #TODO
+    #I made the design decision to copy all of the protofiles into one directory
+    #And compile them in one swoop
+    if not os.path.exists(dst_dir):
+        os.makedirs(dst_dir)
+    else:
+        shutil.rmtree(dst_dir)
+        os.makedirs(dst_dir)
+
+    proto_files = []
 
     for parent_dir, dirs, files in os.walk(source_dir):
         for file in files:
-            if file.endswith(".proto"):
-                proto_file_fullpath = os.path.join(parent_dir, file)
-                compile_proto_file(proto_file_fullpath, parent_dir)
-            if file is "Master.proto":
-                proto_file_fullpath = os.path.join(project_source_dir, "src/common")
-                compile_proto_file(proto_file_fullpath, proto_file_fullpath)
+            if file.endswith(".proto") and (parent_dir != dst_dir):
+                proto_files.append(os.path.join(parent_dir,file))
+            
+
+    #And Copy them over
+    for file in proto_files:
+        print_status(DebugStatus.INFO, "Copy loop for %s" % file)
+        basename = os.path.basename(file)
+        if os.path.exists(os.path.join(dst_dir,basename)):
+            print_status(DebugStatus.WARNING, "%s already exists. Overwriting" % file)
+            os.remove(os.path.join(dst_dir,basename))
+        
+        if file == dst_dir:
+            print_status(DebugStatus.WARNING, "src and dst files are the same. Skipping copy")
+        else:
+            shutil.copy(file, dst_dir)
+
+    #And compile them
+    for proto_file in os.listdir(dst_dir):
+        compile_proto_file(os.path.join(dst_dir,proto_file), dst_dir)
 def main(argv):
     """Main entry point of the script"""
 

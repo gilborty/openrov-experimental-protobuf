@@ -13,16 +13,16 @@ SendResponse NCommManager::SendMessage(ROVMessage& messageOut)
         {
         	std::cout << "SENDING: PoseMessage" << std::endl;
         	master.type = static_cast<int>(EMessageType::PoseMessage);
-        	master.which_messages = MasterMessage_poseMessage_tag;
-        	master.messages.poseMessage = *static_cast<PoseMessage*>(messageOut.GetData());
+        	master.which_payload = MasterMessage_poseMessage_tag;
+        	master.payload.poseMessage = *static_cast<PoseMessage*>(messageOut.GetData());
         	break;
         }
         case(EMessageType::TemperatureMessage):
         {
         	std::cout << "SENDING: TemperatureMessage" << std::endl;
         	master.type = static_cast<int>(EMessageType::TemperatureMessage);
-        	master.which_messages = MasterMessage_temperatureMessage_tag;
-        	master.messages.temperatureMessage = *static_cast<TemperatureMessage*>(messageOut.GetData());
+        	master.which_payload = MasterMessage_temperatureMessage_tag;
+        	master.payload.temperatureMessage = *static_cast<TemperatureMessage*>(messageOut.GetData());
         	break;
         }
         default:
@@ -85,13 +85,13 @@ bool NCommManager::RecieveMessage(BufferInfo& message)
         case(EMessageType::PoseMessage):
         {
         	std::cout << "RECIEVED: PoseMessage" << std::endl;
-        	HandleRecievedMessage(decodedMessage.messages.poseMessage);
+        	HandleRecievedMessage(decodedMessage.payload.poseMessage);
         	break;
         }
         case(EMessageType::TemperatureMessage):
         {
         	std::cout << "RECIEVED: TemperatureMessage" << std::endl;
-        	HandleRecievedMessage(decodedMessage.messages.temperatureMessage);
+        	HandleRecievedMessage(decodedMessage.payload.temperatureMessage);
         	break;
         }
         default:

@@ -1,0 +1,6 @@
+syntax = "proto2";
+
+message PoseMessage
+{
+    required sfixed32 x = 1;
+};
