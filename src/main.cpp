@@ -3,14 +3,16 @@
 #include <chrono>
 #include <thread>
 
-#include "common/NCommManager.h"
-#include "PoseMessage.pb.h"
+//Our NCommManager
+#include "NCommManager.h"
+
+//ROV Base messages
 #include "Master.pb.h"
 #include "ROVMessage.h"
 
-#include "pb.h"
-#include "pb_encode.h"
-#include "pb_decode.h"
+//Our Sensors
+#include "PoseSensor/CPoseSensor.h"
+
 
 class RandomNumberGen
 {
@@ -50,30 +52,36 @@ class RandomNumberGen
 
 int main(int argc, char* argv[])
 {
+    //Manager to recieve data
     NCommManager manager;
+
+    //Our sensors
+    CPoseSensor poseSensor;
+
     while(true)
     {
         //Generate random switch
         if(RNG.GetRandomBool() == 1)
         {
-            //std::cout << "Sending a pose message" << std::endl;
-            CPoseMessage posMessage;
-            PoseMessage messageContents{RNG.GetRandomInt()};
-            posMessage.Pack(messageContents);
-            auto response = manager.SendMessage(posMessage);
-            manager.RecieveMessage(response.second);
+            auto response = poseSensor.Update();
+            if(response.first)
+            {
+                manager.RecieveMessage(response.second);
+            }
+            else
+            {
+                std::cout << "Unable to get update from Pose Sensor" << std::endl;
+            }
         }
         else
         {
-            //std::cout << "Sending a temperature message" << std::endl;
             CTemperatureMessage tempMessage;
             TemperatureMessage messageContents{RNG.GetRandomFloat()};
             tempMessage.Pack(messageContents);
             auto response = manager.SendMessage(tempMessage);
             manager.RecieveMessage(response.second);
         }
-        auto sleepForDuration = RNG.GetRandomInt();
-        std::cout << "SLEEPING FOR: "  << sleepForDuration << " ms" << std::endl;
+        auto sleepForDuration = 250;
         std::this_thread::sleep_for(std::chrono::milliseconds(sleepForDuration));      
         std::cout << std::endl;
     }

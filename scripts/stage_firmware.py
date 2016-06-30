@@ -243,7 +243,6 @@ def stage_source_files():
     
     generate_message_types(proto_files)
     generate_master_proto(proto_files, proto_files_fullpath)
-    generate_ncomm_manager()
 
 def generate_proto_file_sources():
     """
@@ -297,6 +296,9 @@ def main(argv):
 
     #Finally, generate proto files
     generate_proto_file_sources()
+
+    #And the templated c++ NCommManager
+    generate_ncomm_manager()
 
 
 if __name__ == '__main__':

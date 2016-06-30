@@ -88,11 +88,27 @@ bool NCommManager::RecieveMessage(BufferInfo& message)
     {
         /*[[[cog
         import cog
+        import os
 
         def first_letter_to_lower(stringIn):
             return stringIn[0].lower() + stringIn[1:]
+        
+        def get_messages():
+            messages = []
+            #First, get the parent directory
+            top_level = os.path.join(os.getcwd(), "..")
 
-        messages = ['PoseMessage', 'TemperatureMessage']
+            #And now where all the proto files are
+            proto_file_dir = os.path.join(top_level, "src/proto")
+
+            for file in os.listdir(proto_file_dir):
+                if file.endswith(".proto") and (not file.startswith("Master")):
+                    #Strip extension
+                    messages.append(os.path.splitext(file)[0])
+            return messages
+
+
+        messages = get_messages()
 
         for message in messages:
             cog.outl("case(EMessageType::%s):" % message)
